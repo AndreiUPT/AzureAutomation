@@ -18,4 +18,7 @@ $snapshots = Get-AzSnapshot -ResourceGroupName $sourceResourceGroup
 
 foreach ($snapshot in $snapshots) {
     # Check if the snapshot is incremental
-    if ($snapshot.Incremental -eq $true)
+    if ($snapshot.Incremental -eq $true) {
+        try {
+            # Define the new snapshot name
+            $snapshotCopyName = "$($snapshot.Name)-copy-newRegion"
