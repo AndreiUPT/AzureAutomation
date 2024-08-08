@@ -12,3 +12,14 @@ try {
     Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
     throw $_
 }
+
+function Create-VMBackup {
+    param (
+        [String] $resourceGroupName,
+        [String] $vmName,
+        [String] $snapshotNamePrefix,
+        [String] $location
+    )
+
+    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+    $snapshotName = "$snapshotNamePrefix-$vmName-$timestamp"
