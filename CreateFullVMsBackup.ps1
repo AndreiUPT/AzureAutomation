@@ -23,3 +23,21 @@ function Create-VMBackup {
 
     $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
     $snapshotName = "$snapshotNamePrefix-$vmName-$timestamp"
+
+      try {
+        # VM OS disk ID
+        $vm = Get-AzVM -ResourceGroupName $resourceGroupName -Name $vmName
+        $osDiskId = $vm.StorageProfile.OsDisk.ManagedDisk.Id
+
+        # Snapshot configuration
+        $snapshotConfig = New-AzSnapshotConfig -SourceUri $osDiskId -Location $location -CreateOption Copy
+
+        # Create snapshot
+        $snapshot = New-AzSnapshot -Snapshot $snapshotConfig -SnapshotName $snapshotName -ResourceGroupName $resourceGroupName
+
+        Write-Output "Snapshot '$snapshotName' created successfully for VM '$vmName' in resource group '$resourceGroupName' at location '$location'."
+    } catch {
+        Write-Error "Failed to create snapshot for VM '$vmName' in resource group '$resourceGroupName'. Error: $_"
+        throw $_
+    }
+}
