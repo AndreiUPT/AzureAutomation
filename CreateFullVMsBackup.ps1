@@ -41,3 +41,21 @@ function Create-VMBackup {
         throw $_
     }
 }
+
+try {
+    # Retrieve all VMs in the specified resource group
+    $vms = Get-AzVM -ResourceGroupName $resourceGroupName
+
+    if ($null -eq $vms) {
+        Write-Error "No VMs found in resource group '$resourceGroupName'."
+        exit
+    }
+
+    # Create a snapshot for each VM
+    foreach ($vm in $vms) {
+        Create-VMBackup -resourceGroupName $resourceGroupName -vmName $vm.Name -snapshotNamePrefix $snapshotNamePrefix -location $location
+    }
+} catch {
+    Write-Error "An error occurred while processing VMs in resource group '$resourceGroupName'. Error: $_"
+    throw $_
+}
