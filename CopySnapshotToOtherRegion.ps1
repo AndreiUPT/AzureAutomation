@@ -15,3 +15,7 @@ try {
 
 # Get all snapshots in the source resource group
 $snapshots = Get-AzSnapshot -ResourceGroupName $sourceResourceGroup
+
+foreach ($snapshot in $snapshots) {
+    # Check if the snapshot is incremental
+    if ($snapshot.Incremental -eq $true)
