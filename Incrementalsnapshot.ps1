@@ -32,3 +32,16 @@ foreach ($vm in $vms) {
     } catch {
         Write-Error -Message "Failed to create incremental snapshot for OS disk of VM $vmName. Error: $_"
     }
+
+    # Create incremental snapshots for the data disks
+    foreach ($dataDisk in $dataDisks) {
+        try {
+            $dataDiskSnapshotName = "$($vmName)-$($dataDisk.Name)-incremental-snapshot"
+            $dataDiskSnapshotConfig = New-AzSnapshotConfig -Location $region -CreateOption Copy -SourceResourceId $dataDisk.ManagedDisk.Id -Incremental
+            New-AzSnapshot -ResourceGroupName $resourceGroup -SnapshotName $dataDiskSnapshotName -Snapshot $dataDiskSnapshotConfig
+            Write-Output "Incremental snapshot $dataDiskSnapshotName created for data disk $($dataDisk.Name) of VM $vmName."
+        } catch {
+            Write-Error -Message "Failed to create incremental snapshot for data disk $($dataDisk.Name) of VM $vmName. Error: $_"
+        }
+    }
+}
