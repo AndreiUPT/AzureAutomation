@@ -22,3 +22,22 @@ foreach ($snapshot in $snapshots) {
         try {
             # Define the new snapshot name
             $snapshotCopyName = "$($snapshot.Name)-copy-newRegion"
+            
+            # Create the snapshot copy in the target region
+            $snapshotConfig = @{
+                Location = $targetRegion
+                CreateOption = "CopyStart"
+                SourceResourceId = $snapshot.Id
+                Incremental = $true
+            }
+
+            New-AzSnapshot -ResourceGroupName $sourceResourceGroup -SnapshotName $snapshotCopyName -Snapshot (New-AzSnapshotConfig @snapshotConfig)
+
+            Write-Output "Incremental snapshot $($snapshot.Name) copied to $targetRegion as $snapshotCopyName."
+        } catch {
+            Write-Error -Message "Failed to copy snapshot $($snapshot.Name) to $targetRegion. Error: $_"
+        }
+    } else {
+        Write-Output "Snapshot $($snapshot.Name) is not incremental. Skipping."
+    }
+}
