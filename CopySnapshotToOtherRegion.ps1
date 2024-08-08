@@ -12,3 +12,6 @@ try {
     Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
     throw $_
 }
+
+# Get all snapshots in the source resource group
+$snapshots = Get-AzSnapshot -ResourceGroupName $sourceResourceGroup
