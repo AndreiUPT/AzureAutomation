@@ -22,3 +22,13 @@ foreach ($vm in $vms) {
     # Get the managed disks attached to the VM
     $osDisk = $vm.StorageProfile.OsDisk.ManagedDisk
     $dataDisks = $vm.StorageProfile.DataDisks
+
+    # Create incremental snapshot for the OS disk
+    try {
+        $osDiskSnapshotName = "$($vmName)-osdisk-incremental-snapshot"
+        $osDiskSnapshotConfig = New-AzSnapshotConfig -Location $region -CreateOption Copy -SourceResourceId $osDisk.Id -Incremental
+        New-AzSnapshot -ResourceGroupName $resourceGroup -SnapshotName $osDiskSnapshotName -Snapshot $osDiskSnapshotConfig
+        Write-Output "Incremental snapshot $osDiskSnapshotName created for OS disk of VM $vmName."
+    } catch {
+        Write-Error -Message "Failed to create incremental snapshot for OS disk of VM $vmName. Error: $_"
+    }
