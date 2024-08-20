@@ -13,3 +13,19 @@ try {
     throw $_
 }
 
+try {
+    # Get all snapshots in the resource group
+    $snapshots = Get-AzSnapshot -ResourceGroupName $resourceGroupName
+
+    foreach ($snapshot in $snapshots) {
+        $snapshotName = $snapshot.Name
+
+        # Create a hashtable with snapshot details
+        $snapshotDetails = @{
+            Id           = $snapshot.Id
+            Name         = $snapshot.Name
+            Location     = $snapshot.Location
+            CreationTime = $snapshot.TimeCreated.ToString("o")  # ISO 8601 format
+            DiskSizeGB   = $snapshot.DiskSizeGB
+            OsType       = $snapshot.OsType
+        }
