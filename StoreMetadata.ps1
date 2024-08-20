@@ -29,3 +29,9 @@ try {
             DiskSizeGB   = $snapshot.DiskSizeGB
             OsType       = $snapshot.OsType
         }
+
+# Convert the hashtable to JSON
+$snapshotDetailsJson = $snapshotDetails | ConvertTo-Json -Depth 10
+
+# Convert JSON to SecureString
+$secureStringValue = $snapshotDetailsJson | ConvertTo-SecureString -AsPlainText -Force
