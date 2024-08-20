@@ -35,3 +35,12 @@ $snapshotDetailsJson = $snapshotDetails | ConvertTo-Json -Depth 10
 
 # Convert JSON to SecureString
 $secureStringValue = $snapshotDetailsJson | ConvertTo-SecureString -AsPlainText -Force
+
+# Set the secret in Azure Key Vault
+Set-AzKeyVaultSecret -VaultName $vaultName -Name "$($snapshotName)-metadata" -SecretValue $secureStringValue
+
+Write-Output "Snapshot details for '$snapshotName' stored successfully."
+}
+} catch {
+    Write-Error -Message "Failed to store snapshot details. Error: $_"
+}
