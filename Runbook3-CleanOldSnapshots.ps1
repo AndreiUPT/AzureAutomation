@@ -31,3 +31,5 @@ function Cleanup-OldSnapshots {
         throw $_
     }
 }
+
+Cleanup-OldSnapshots -resourceGroupName $resourceGroupName -retentionDays $retentionDays
