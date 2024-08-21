@@ -15,3 +15,12 @@ try {
     Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
     throw $_
 }
+
+try {
+    # Retrieve all snapshots in the resource group
+    $snapshots = Get-AzSnapshot -ResourceGroupName $resourceGroupName
+
+    if ($null -eq $snapshots) {
+        Write-Error "No snapshots found in resource group '$resourceGroupName'."
+        exit
+    }
