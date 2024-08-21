@@ -50,3 +50,23 @@ try {
     Write-Output "Snapshot Creation Time: $($newestSnapshot.TimeCreated)"
     Write-Output "Snapshot Size (GB): $($newestSnapshot.DiskSizeGB)"
     Write-Output "Snapshot Location: $($newestSnapshot.Location)"
+
+    # Create the disk configuration from the newest snapshot
+    $diskConfig = New-AzDiskConfig -Location $location -CreateOption Copy -SourceUri $newestSnapshot.Id -DiskSizeGB $diskSizeGB
+
+    if ($null -eq $diskConfig) {
+        Write-Error "Failed to create disk configuration from snapshot."
+        exit
+    }
+
+    # Create a unique disk name using the prefix and timestamp
+    $timestamp = (Get-Date).ToString("yyyyMMdd-HHmmss")
+    $diskName = "$diskNamePrefix$timestamp"
+
+    # Create the managed disk
+    New-AzDisk -ResourceGroupName $resourceGroupName -DiskName $diskName -Disk $diskConfig
+    Write-Output "Managed disk '$diskName' created successfully from snapshot '$($newestSnapshot.Name)'."
+} catch {
+    Write-Error -Message "An error occurred: $_"
+    throw $_
+}
