@@ -13,3 +13,11 @@ try {
     throw $_
 }
 
+try {
+    # Get all secrets in the Key Vault
+    $secrets = Get-AzKeyVaultSecret -VaultName $vaultName
+
+    if ($null -eq $secrets) {
+        Write-Output "No secrets found in the Key Vault."
+        return
+    }
