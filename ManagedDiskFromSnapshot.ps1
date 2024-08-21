@@ -24,3 +24,14 @@ try {
         Write-Error "No snapshots found in resource group '$resourceGroupName'."
         exit
     }
+
+# Filter snapshots based on the region/location, prefix, and type (excluding incremental snapshots)
+    $filteredSnapshots = $snapshots | Where-Object {
+        $_.Location -eq $location -and
+        $_.Name -like "$snapshotPrefix*" 
+    }
+
+    if ($null -eq $filteredSnapshots -or $filteredSnapshots.Count -eq 0) {
+        Write-Error "No snapshots found with prefix '$snapshotPrefix' in location '$location'."
+        exit
+    }
