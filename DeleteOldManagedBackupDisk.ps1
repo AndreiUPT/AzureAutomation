@@ -13,3 +13,17 @@ try {
     Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
     throw $_
 }
+
+try {
+    # Get all managed disks in the specified resource group
+    $disks = Get-AzDisk -ResourceGroupName $resourceGroupName
+
+    # Get the current date
+    $currentDate = Get-Date
+
+    # Iterate through the disks and check for the specified conditions
+    foreach ($disk in $disks) {
+        # Check if the disk name contains the specified substring "backup"
+        if ($disk.Name -like "*$diskNameSubstring*") {
+            $diskCreationDate = $disk.TimeCreated
+            $daysOld = ($currentDate - $diskCreationDate).Days
