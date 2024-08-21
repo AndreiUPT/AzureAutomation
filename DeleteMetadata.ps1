@@ -21,3 +21,15 @@ try {
         Write-Output "No secrets found in the Key Vault."
         return
     }
+
+$currentDate = Get-Date
+    foreach ($secret in $secrets) {
+        try {
+            # Retrieve tags for the secret
+            $secretDetails = Get-AzKeyVaultSecret -VaultName $vaultName -Name $secret.Name
+            $tags = $secretDetails.Tags
+
+            if ($null -eq $tags -or -not $tags.ContainsKey('CreatedDate')) {
+                Write-Output "No 'CreatedDate' tag found for secret '$($secret.Name)'. Skipping."
+                continue
+            }
