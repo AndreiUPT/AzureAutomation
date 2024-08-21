@@ -33,3 +33,24 @@ $currentDate = Get-Date
                 Write-Output "No 'CreatedDate' tag found for secret '$($secret.Name)'. Skipping."
                 continue
             }
+
+
+            # Parse creation date from tag
+            $creationDate = $tags['CreatedDate']
+            $creationDate = [DateTime]::Parse($creationDate)
+            $daysOld = ($currentDate - $creationDate).Days
+
+            if ($daysOld -ge $retentionDays) {
+                # Delete the secret if older than retentionDays
+                Remove-AzKeyVaultSecret -VaultName $vaultName -Name $secret.Name
+                Write-Output "Deleted secret '$($secret.Name)' which is $daysOld days old."
+            } else {
+                Write-Output "Secret '$($secret.Name)' is $daysOld days old and not yet due for deletion."
+            }
+        } catch {
+            Write-Error -Message "Error processing secret '$($secret.Name)'. Error: $_"
+        }
+    }
+} catch {
+    Write-Error -Message "Failed to delete old secrets. Error: $_"
+}
