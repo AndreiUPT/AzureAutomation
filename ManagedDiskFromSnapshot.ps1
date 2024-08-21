@@ -43,3 +43,10 @@ try {
         Write-Error "Failed to find the newest snapshot with prefix '$snapshotPrefix' in location '$location'."
         exit
     }
+
+    # Output the snapshot details for verification
+    Write-Output "Newest Snapshot ID: $($newestSnapshot.Id)"
+    Write-Output "Snapshot Name: $($newestSnapshot.Name)"
+    Write-Output "Snapshot Creation Time: $($newestSnapshot.TimeCreated)"
+    Write-Output "Snapshot Size (GB): $($newestSnapshot.DiskSizeGB)"
+    Write-Output "Snapshot Location: $($newestSnapshot.Location)"
