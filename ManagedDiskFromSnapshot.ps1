@@ -35,3 +35,11 @@ try {
         Write-Error "No snapshots found with prefix '$snapshotPrefix' in location '$location'."
         exit
     }
+
+    # Find the newest snapshot based on creation time
+    $newestSnapshot = $filteredSnapshots | Sort-Object -Property TimeCreated -Descending | Select-Object -First 1
+
+    if ($null -eq $newestSnapshot) {
+        Write-Error "Failed to find the newest snapshot with prefix '$snapshotPrefix' in location '$location'."
+        exit
+    }
