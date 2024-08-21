@@ -27,3 +27,19 @@ try {
         if ($disk.Name -like "*$diskNameSubstring*") {
             $diskCreationDate = $disk.TimeCreated
             $daysOld = ($currentDate - $diskCreationDate).Days
+
+# Check if the disk is older than the retention period
+            if ($daysOld -ge $retentionDays) {
+                # Delete the disk
+                Remove-AzDisk -ResourceGroupName $resourceGroupName -DiskName $disk.Name -Force
+                Write-Output "Deleted managed disk '$($disk.Name)' which is $daysOld days old."
+            } else {
+                Write-Output "Managed disk '$($disk.Name)' is $daysOld days old and not eligible for deletion."
+            }
+        } else {
+            Write-Output "Managed disk '$($disk.Name)' does not match the naming criteria."
+        }
+    }
+} catch {
+    Write-Error -Message "Failed to delete old managed disks. Error: $_"
+}
