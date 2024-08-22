@@ -61,3 +61,19 @@ try {
         Write-Error -Message "An error occurred: $_"
     }
 }
+
+try {
+    Connect-AzAccount -Identity
+    Select-AzSubscription -SubscriptionId $subscriptionId
+    Write-Output "Authenticated successfully."
+} catch {
+    Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
+    throw $_
+}
+
+# Schedule for Daily Incremental Snapshot
+Register-RunbookWithSchedule -runbookName 'CopySnapshotToOtherRegion' `
+                              -scheduleName 'DailyCopySnapshotToOtherRegionSchedule' `
+                              -intervalType 'Day' `
+                              -interval 1 `
+                              -startTime (Get-Date).Date.AddDays(1).AddHours(3)
