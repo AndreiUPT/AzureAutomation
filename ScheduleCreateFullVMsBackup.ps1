@@ -64,3 +64,19 @@ try {
     }
 }
 
+try {
+    Connect-AzAccount -Identity
+    Select-AzSubscription -SubscriptionId $subscriptionId
+    Write-Output "Authenticated successfully."
+} catch {
+    Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
+    throw $_
+}
+
+# Schedule for Weekly Full Backup
+Register-RunbookWithSchedule -runbookName 'CreateFullVMsBackup' `
+                              -scheduleName 'WeeklyFullSnapshotBackupSchedule' `
+                              -prefix 'snapshot-full' `
+                              -intervalType 'Week' `
+                              -interval 1 `
+                              -startTime (Get-Date).AddDays(1).Date.AddHours(1)
