@@ -13,3 +13,36 @@ function Register-RunbookWithSchedule {
         [Int] $interval,
         [Datetime] $startTime
     )
+
+try {
+        # Create or update schedule
+        $schedule = Get-AzAutomationSchedule -ResourceGroupName $resourceGroupName `
+                                             -AutomationAccountName $automationAccountName `
+                                             -Name $scheduleName -ErrorAction SilentlyContinue
+
+        if ($null -eq $schedule) {
+            if ($intervalType -eq 'Day') {
+                $schedule = New-AzAutomationSchedule -ResourceGroupName $resourceGroupName `
+                                                     -AutomationAccountName $automationAccountName `
+                                                     -Name $scheduleName `
+                                                     -StartTime $startTime `
+                                                     -DayInterval $interval `
+                                                     -TimeZone 'UTC'
+            } elseif ($intervalType -eq 'Week') {
+                $schedule = New-AzAutomationSchedule -ResourceGroupName $resourceGroupName `
+                                                     -AutomationAccountName $automationAccountName `
+                                                     -Name $scheduleName `
+                                                     -StartTime $startTime `
+                                                     -WeekInterval $interval `
+                                                     -TimeZone 'UTC'
+            }
+
+            if ($null -ne $schedule) {
+                Write-Output "Schedule '$scheduleName' created successfully."
+            } else {
+                Write-Error "Failed to create schedule '$scheduleName'."
+                return
+            }
+        } else {
+            Write-Output "Schedule '$scheduleName' already exists."
+        }
