@@ -58,3 +58,24 @@ function Register-RunbookWithSchedule {
         Write-Error -Message "An error occurred: $_"
     }
 }
+
+try {
+    Connect-AzAccount -Identity
+    Select-AzSubscription -SubscriptionId $subscriptionId
+    Write-Output "Authenticated successfully."
+} catch {
+    Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
+    throw $_
+}
+
+# Schedule for Daily Cleanup Old Secrets at 5 AM
+Register-RunbookWithSchedule -runbookName $runbookName `
+                              -scheduleName $scheduleName `
+                              -intervalType 'Day' `
+                              -interval 1 `
+                              -startTime (Get-Date).Date.AddDays(1).AddHours(5) `
+                              -runbookParameters @{ 
+                                vaultName = 'aio-kv-upt'; 
+                                subscriptionId = $subscriptionId;
+                                retentionDays = 2 
+                              }
