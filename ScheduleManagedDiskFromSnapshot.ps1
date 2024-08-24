@@ -63,3 +63,25 @@ try {
     }
 }
 
+try {
+    Connect-AzAccount -Identity
+    Select-AzSubscription -SubscriptionId $subscriptionId
+    Write-Output "Authenticated successfully."
+} catch {
+    Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
+    throw $_
+}
+
+# Schedule the runbook to create a managed disk from the newest snapshot
+Register-RunbookWithSchedule -runbookName 'ManagedDiskFromSnapshot' `
+                             -scheduleName 'WeeklyManagedDiskCreationSchedule' `
+                             -intervalType 'Week' `
+                             -interval 1 `
+                             -startTime (Get-Date).Date.AddDays(7 - (Get-Date).DayOfWeek + [System.DayOfWeek]::Sunday).AddHours(7) `
+                             -runbookParameters @{ 
+                                resourceGroupName = 'RG-AndreiUPT'; 
+                                diskNamePrefix = 'backupDisk-'; 
+                                diskSizeGB = 128; 
+                                location = 'north europe'; 
+                                subscriptionId = 'a24b4eab-e1ce-49f2-b025-cf22b0e48aa3' 
+                             }
