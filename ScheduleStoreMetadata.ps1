@@ -63,3 +63,23 @@ function Register-RunbookWithSchedule {
         Write-Error -Message "An error occurred: $_"
     }
 }
+
+try {
+    Connect-AzAccount -Identity
+    Select-AzSubscription -SubscriptionId $subscriptionId
+    Write-Output "Authenticated successfully."
+} catch {
+    Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
+    throw $_
+}
+
+# Schedule for Daily Store Metadata
+Register-RunbookWithSchedule -runbookName 'StoreMetadata' `
+                              -scheduleName 'DailyStoreMetadataKVSchedule' `
+                              -intervalType 'Day' `
+                              -interval 1 `
+                              -startTime (Get-Date).AddDays(1).Date.AddHours(5) `
+                              -runbookParameters @{
+                                  vaultName = $vaultName;
+                                  resourceGroupName = $resourceGroupName
+                              }
