@@ -62,3 +62,19 @@ try {
         Write-Error -Message "An error occurred: $_"
     }
 }
+
+try {
+    Connect-AzAccount -Identity
+    Select-AzSubscription -SubscriptionId $subscriptionId
+    Write-Output "Authenticated successfully."
+} catch {
+    Write-Error -Message "Failed to authenticate using Managed Identity. Error: $_"
+    throw $_
+}
+
+# Schedule the runbook to create a managed disk from the newest snapshot
+Register-RunbookWithSchedule -runbookName 'DeleteOldManagedBackupDisk' `
+                             -scheduleName 'WeeklyDeleteManagedBackupDiskSchedule' `
+                             -intervalType 'Week' `
+                             -interval 1 `
+                             -startTime (Get-Date).Date.AddDays(7 - (Get-Date).DayOfWeek + [System.DayOfWeek]::Monday).AddHours(8) `
