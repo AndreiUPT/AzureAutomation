@@ -45,3 +45,21 @@ try {
         } else {
             Write-Output "Schedule '$scheduleName' already exists."
         }
+
+        # Register the runbook with the schedule
+        $registration = Register-AzAutomationScheduledRunbook -ResourceGroupName $resourceGroupName `
+                                                             -AutomationAccountName $automationAccountName `
+                                                             -RunbookName $runbookName `
+                                                             -ScheduleName $schedule.Name `
+                                                             -Parameters $runbookParameters
+
+        if ($null -ne $registration) {
+            Write-Output "Runbook '$runbookName' registered with schedule '$scheduleName' successfully."
+        } else {
+            Write-Error "Failed to register runbook '$runbookName' with schedule '$scheduleName'."
+        }
+    } catch {
+        Write-Error -Message "An error occurred: $_"
+    }
+}
+
