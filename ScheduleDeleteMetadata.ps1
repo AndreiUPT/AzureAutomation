@@ -5,3 +5,13 @@ param (
     [String] $runbookName = 'DeleteMetadata', 
     [String] $scheduleName = 'DailyDeleteMetadataSchedule(2DaysRetention)'
 )
+
+function Register-RunbookWithSchedule {
+    param (
+        [String] $runbookName,
+        [String] $scheduleName,
+        [String] $intervalType,
+        [Int] $interval,
+        [Datetime] $startTime,
+        [Hashtable] $runbookParameters
+    )
