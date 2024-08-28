@@ -12,6 +12,8 @@ try {
     throw $_
 }
 
+$timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+
 # Get all VMs in the specified resource group
 $vms = Get-AzVM -ResourceGroupName $resourceGroup
 
@@ -25,7 +27,7 @@ foreach ($vm in $vms) {
 
     # Create incremental snapshot for the OS disk
     try {
-        $osDiskSnapshotName = "$($vmName)-osdisk-incremental-snapshot"
+        $osDiskSnapshotName = "$($vmName)-osdisk-incremental-snapshot-$timestamp"
         $osDiskSnapshotConfig = New-AzSnapshotConfig -Location $region -CreateOption Copy -SourceResourceId $osDisk.Id -Incremental
         New-AzSnapshot -ResourceGroupName $resourceGroup -SnapshotName $osDiskSnapshotName -Snapshot $osDiskSnapshotConfig
         Write-Output "Incremental snapshot $osDiskSnapshotName created for OS disk of VM $vmName."
