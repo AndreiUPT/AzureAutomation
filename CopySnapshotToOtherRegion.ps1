@@ -13,6 +13,9 @@ try {
     throw $_
 }
 
+$timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$counter = 1
+
 # Get all snapshots in the source resource group
 $snapshots = Get-AzSnapshot -ResourceGroupName $sourceResourceGroup
 
@@ -21,7 +24,8 @@ foreach ($snapshot in $snapshots) {
     if ($snapshot.Incremental -eq $true) {
         try {
             # Define the new snapshot name
-            $snapshotCopyName = "$($snapshot.Name)-copy-newRegion"
+            $snapshotCopyName = "vm-$counter-copy-$timestamp-BackupRegion"
+	        $counter = $counter +1
             
             # Create the snapshot copy in the target region
             $snapshotConfig = @{
